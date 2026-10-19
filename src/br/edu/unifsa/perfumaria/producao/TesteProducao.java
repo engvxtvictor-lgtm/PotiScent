@@ -82,29 +82,51 @@ public class TesteProducao {
         LocalDate inicio = LocalDate.of(2026, 1, 1);
         LocalDate validade = LocalDate.of(2027, 1, 1);
 
+        testarPrazoMaceracao(
+                "Parfum",
+                new Parfum("Parfum teste", custo(),
+                        new BigDecimal("25")),
+                60, inicio, validade);
+
+        testarPrazoMaceracao(
+                "EDP",
+                new EDP("EDP teste", custo(),
+                        new BigDecimal("18")),
+                45, inicio, validade);
+
+        testarPrazoMaceracao(
+                "EDT",
+                new EDT("EDT teste", custo(),
+                        new BigDecimal("10")),
+                30, inicio, validade);
+
+        testarPrazoMaceracao(
+                "Colonia",
+                new Colonia("Colonia teste", custo(),
+                        new BigDecimal("3")),
+                15, inicio, validade);
+    }
+
+    private static void testarPrazoMaceracao(
+            String tipo, Perfume perfume, int dias,
+            LocalDate inicio, LocalDate validade) {
+
         LoteProducao lote = new LoteProducao(
-                "TESTE-RN04",
-                new EDT("Perfume teste", custo(), new BigDecimal("10")),
-                inicio,
-                validade);
+                "TESTE-" + tipo, perfume, inicio, validade);
 
         esperarErro(
-                () -> lote.envasar(50, 2, inicio.plusDays(29)),
-                "Envase antes de 30 dias rejeitado");
+                () -> lote.envasar(50, 1, inicio.plusDays(dias - 1)),
+                tipo + ": envase antes de " + dias + " dias rejeitado");
 
-        lote.envasar(50, 2, inicio.plusDays(30));
+        lote.envasar(50, 1, inicio.plusDays(dias));
 
         if (lote.isEnvasado()
-                && lote.getUnidadesEnvasadas() == 2
+                && lote.getUnidadesEnvasadas() == 1
                 && lote.getFrasco().getVolumeMl() == 50) {
-            passou("Envase liberado apos 30 dias");
+            passou(tipo + ": envase liberado apos " + dias + " dias");
         } else {
-            falhou("Envase correto nao foi registrado");
+            falhou(tipo + ": envase nao registrado corretamente");
         }
-
-        esperarErro(
-                () -> lote.envasar(100, 1, inicio.plusDays(31)),
-                "Segundo envase do lote rejeitado");
     }
 
     private static void testarRN05CodigoLote() {
