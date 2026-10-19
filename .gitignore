@@ -5,6 +5,9 @@
 target/
 bin/
 out/
+build/
+dist/
+nbproject/private/
 
 # IDEs
 .vscode/
