@@ -1,4 +1,3 @@
-
 package br.edu.unifsa.perfumaria.produtos;
 
 import java.math.BigDecimal;
@@ -34,6 +33,11 @@ public class PerfumePersonalizado extends Perfume {
 
     public boolean permiteDevolucao() {
         return false;
+    }
+
+    public void devolver() {
+        throw new IllegalStateException(
+                "[RN11] Perfumes personalizados não podem ser devolvidos.");
     }
 
     @Override
