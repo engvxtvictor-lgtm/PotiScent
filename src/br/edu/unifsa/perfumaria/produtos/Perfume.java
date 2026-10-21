@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public abstract class Perfume extends Produto {
 
-    private BigDecimal concentracaoEssencia;
+    private final BigDecimal concentracaoEssencia;
 
     public Perfume(String nome, BigDecimal custoProducao,
                    BigDecimal concentracaoEssencia) {
@@ -12,15 +12,14 @@ public abstract class Perfume extends Produto {
 
         if (concentracaoEssencia == null) {
             throw new IllegalArgumentException(
-                "A concentração de essência não pode ser nula."
-            );
+                    "A concentração de essência não pode ser nula.");
         }
 
         if (concentracaoEssencia.compareTo(getConcentracaoMinima()) < 0
                 || concentracaoEssencia.compareTo(getConcentracaoMaxima()) > 0) {
             throw new IllegalArgumentException(
-                "A concentração de essência está fora da faixa permitida para esta categoria."
-            );
+                    "[RN01] Concentração fora da faixa permitida para "
+                            + getClass().getSimpleName() + ".");
         }
 
         this.concentracaoEssencia = concentracaoEssencia;
@@ -34,5 +33,14 @@ public abstract class Perfume extends Produto {
 
     public BigDecimal getConcentracaoEssencia() {
         return concentracaoEssencia;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "{" + formatarDadosComuns()
+                + ", concentracaoEssencia=" + concentracaoEssencia
+                + "%, maceracaoMinima="
+                + getTempoMinimoMaceracaoDias() + " dias}";
     }
 }

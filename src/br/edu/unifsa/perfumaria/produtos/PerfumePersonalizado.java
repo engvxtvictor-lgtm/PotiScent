@@ -2,7 +2,8 @@ package br.edu.unifsa.perfumaria.produtos;
 
 import java.math.BigDecimal;
 
-public class PerfumePersonalizado extends Perfume {
+public class PerfumePersonalizado extends Perfume
+        implements Precificavel, Personalizavel {
 
     private final String gravacao;
 
@@ -16,7 +17,7 @@ public class PerfumePersonalizado extends Perfume {
 
         if (gravacao == null || gravacao.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                    "A gravação é obrigatória.");
+                    "[RN11] A gravação é obrigatória.");
         }
 
         if (gravacao.length() > 20) {
@@ -24,17 +25,20 @@ public class PerfumePersonalizado extends Perfume {
                     "[RN11] A gravação não pode ultrapassar 20 caracteres.");
         }
 
-        this.gravacao = gravacao;
+        this.gravacao = gravacao.trim();
     }
 
+    @Override
     public String getGravacao() {
         return gravacao;
     }
 
+    @Override
     public boolean permiteDevolucao() {
         return false;
     }
 
+    @Override
     public void devolver() {
         throw new IllegalStateException(
                 "[RN11] Perfumes personalizados não podem ser devolvidos.");
@@ -53,5 +57,12 @@ public class PerfumePersonalizado extends Perfume {
     @Override
     public BigDecimal getConcentracaoMaxima() {
         return new BigDecimal("20");
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                .replaceFirst("\\}$", "")
+                + ", gravacao='" + gravacao + "'}";
     }
 }

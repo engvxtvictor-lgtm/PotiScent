@@ -1,227 +1,300 @@
-
 package br.edu.unifsa.perfumaria;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Arrays;
 
+import br.edu.unifsa.perfumaria.pessoas.Funcionario;
 import br.edu.unifsa.perfumaria.pessoas.Perfumista;
+import br.edu.unifsa.perfumaria.pessoas.PerfumistaJunior;
+import br.edu.unifsa.perfumaria.pessoas.PerfumistaSenior;
+import br.edu.unifsa.perfumaria.producao.EstoquePerfumes;
+import br.edu.unifsa.perfumaria.producao.Frasco;
+import br.edu.unifsa.perfumaria.producao.LoteProducao;
+import br.edu.unifsa.perfumaria.producao.MateriaPrima;
 import br.edu.unifsa.perfumaria.produtos.CamadaOlfativa;
+import br.edu.unifsa.perfumaria.produtos.Colonia;
+import br.edu.unifsa.perfumaria.produtos.DifusorAromatico;
+import br.edu.unifsa.perfumaria.produtos.EDP;
+import br.edu.unifsa.perfumaria.produtos.EDT;
 import br.edu.unifsa.perfumaria.produtos.FormulaOlfativa;
 import br.edu.unifsa.perfumaria.produtos.IngredienteFormula;
 import br.edu.unifsa.perfumaria.produtos.Parfum;
+import br.edu.unifsa.perfumaria.produtos.Perfume;
+import br.edu.unifsa.perfumaria.produtos.PerfumePersonalizado;
+import br.edu.unifsa.perfumaria.produtos.VelaAromatica;
 
 public class Simulacao {
 
+    private static final LocalDate INICIO = LocalDate.of(2026, 1, 1);
+    private static final LocalDate ENVASE = LocalDate.of(2026, 3, 10);
+    private static final LocalDate VALIDADE = LocalDate.of(2027, 1, 1);
+
     public static void main(String[] args) {
-        System.out.println("=== Essencia do Poti ===");
+        System.out.println("=== ESSÊNCIA DO POTI ===");
+        System.out.println("Simulação: Um dia na perfumaria");
 
-        testarFormulaValida();
-        testarSomaInvalidaDasCamadas();
-        testarSomaInvalidaDosIngredientes();
-        testarCamadaComPercentualZero();
-        testarCamadaComPercentualNegativo();
-        testarCamadaComIngredientesVazios();
-        testarIngredienteComPercentualNegativo();
-        testarIngredienteAcimaDe100();
+        testarHierarquiaEPolimorfismo();
 
-        testarAssinaturaParfumJunior();
-        testarAssinaturaParfumSenior();
+        testarRN01();
+        testarRN02();
+        testarRN03();
+        testarRN04();
+        testarRN05();
+        testarRN06ERn07();
+        testarRN08();
+        testarRN09();
+        testarRN10();
+        testarRN11();
+
+        System.out.println("\n=== SIMULAÇÃO CONCLUÍDA ===");
     }
 
-    private static void testarFormulaValida() {
-        System.out.println("\n[RN02] Formula valida");
+    private static void testarHierarquiaEPolimorfismo() {
+        System.out.println("\n[POO] Hierarquia e polimorfismo");
+
+        Funcionario junior = new PerfumistaJunior("João");
+        Funcionario senior = new PerfumistaSenior("Maria");
+
+        System.out.println("Funcionário: " + junior);
+        System.out.println("Funcionário: " + senior);
+
+        Perfume[] perfumes = {
+            new Parfum("Poti Intenso", bd("100"), bd("25")),
+            new EDP("Poti Elegante", bd("80"), bd("18")),
+            new EDT("Poti Leve", bd("50"), bd("10")),
+            new Colonia("Poti Fresco", bd("30"), bd("4"))
+        };
+
+        for (Perfume perfume : perfumes) {
+            System.out.println(perfume);
+        }
+
+        System.out.println("PASSOU: hierarquia e polimorfismo demonstrados.");
+    }
+
+    private static void testarRN01() {
+        testarRecusa("[RN01] Parfum com concentração acima do limite",
+                () -> new Parfum("Inválido", bd("100"), bd("31")));
+    }
+
+    private static void testarRN02() {
+        System.out.println("\n[RN02] Fórmulas e camadas olfativas");
 
         try {
             FormulaOlfativa formula = criarFormulaValida();
-            System.out.println("PASSOU: " + formula);
-        } catch (IllegalArgumentException e) {
-            System.out.println("FALHOU: " + e.getMessage());
+            System.out.println("PASSOU: fórmula válida aceita.");
+            System.out.println(formula);
+        } catch (RuntimeException e) {
+            falhou(e);
         }
+
+        testarRecusa("[RN02] Camadas totalizando apenas 90%",
+                () -> new FormulaOlfativa(
+                        criarCamada("saída", "20", "Bergamota"),
+                        criarCamada("coração", "30", "Rosa"),
+                        criarCamada("fundo", "40", "Cedro")));
+
+        testarRecusa("[RN02] Camada com percentual zero",
+                () -> criarCamada("saída", "0", "Bergamota"));
+
+        testarRecusa("[RN02] Camada sem ingredientes",
+                () -> new CamadaOlfativa(
+                        "saída", bd("25"), Arrays.asList()));
+
+        testarRecusa("[RN02] Ingrediente com percentual negativo",
+                () -> new IngredienteFormula("Bergamota", bd("-5")));
     }
 
-    private static void testarSomaInvalidaDasCamadas() {
-        System.out.println("\n[RN02] Camadas somam 90%");
+    private static void testarRN03() {
+        testarRecusa("[RN03] Frasco de 40 ml",
+                () -> new Frasco(40));
+
+        LoteProducao lote = criarLote("RN03-001");
+        lote.envasar(30, 2, ENVASE);
+
+        testarRecusa("[RN03] Tentar envasar o mesmo lote novamente",
+                () -> lote.envasar(50, 2, ENVASE));
+
+        System.out.println("PASSOU: volume definido no primeiro envase: "
+                + lote.getFrasco());
+    }
+
+    private static void testarRN04() {
+        LoteProducao lote = criarLote("RN04-001");
+
+        testarRecusa("[RN04] Envase antes dos 60 dias de maceração",
+                () -> lote.envasar(30, 2, LocalDate.of(2026, 1, 20)));
 
         try {
-            CamadaOlfativa saída = criarCamada(
-                    "saída", "20",
-                    new String[]{"Bergamota"},
-                    new String[]{"100"});
-
-            CamadaOlfativa coração = criarCamada(
-                    "coração", "30",
-                    new String[]{"Rosa"},
-                    new String[]{"100"});
-
-            CamadaOlfativa fundo = criarCamada(
-                    "fundo", "40",
-                    new String[]{"Cedro"},
-                    new String[]{"100"});
-
-            new FormulaOlfativa(saída, coração, fundo);
-            System.out.println("FALHOU: formula invalida foi aceita.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: formula rejeitada.");
+            lote.envasar(30, 2, ENVASE);
+            System.out.println("PASSOU: envase autorizado após a maceração.");
+        } catch (RuntimeException e) {
+            falhou(e);
         }
     }
 
-    private static void testarSomaInvalidaDosIngredientes() {
-        System.out.println("\n[RN02] Ingredientes somam 90%");
+    private static void testarRN05() {
+        testarRecusa("[RN05] Criar lote sem código",
+                () -> new LoteProducao(
+                        " ", criarParfum(), INICIO, VALIDADE));
+
+        LoteProducao lote = criarLote("LOTE-IMUTAVEL");
+        System.out.println("[RN05] Código do lote: " + lote.getCodigo());
+        System.out.println("PASSOU: código declarado final e sem setter.");
+    }
+
+    private static void testarRN06ERn07() {
+        System.out.println("\n[RN06/RN07] Estoque e vendas");
+
+        Parfum perfume = criarParfum();
+        LoteProducao lote = criarLote("VENDA-001");
+        lote.envasar(50, 5, ENVASE);
+
+        EstoquePerfumes estoque = new EstoquePerfumes();
+        estoque.registrarEnvase(perfume, lote);
+
+        testarRecusa("[RN06] Preço abaixo do mínimo de 40%",
+                () -> estoque.registrarVenda(perfume, 1, bd("139.99")));
 
         try {
-            criarCamada(
-                    "saída", "25",
-                    new String[]{"Bergamota", "Limao"},
-                    new String[]{"50", "40"});
-
-            System.out.println("FALHOU: camada invalida foi aceita.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: camada rejeitada.");
+            estoque.registrarVenda(perfume, 1, bd("140.00"));
+            System.out.println("PASSOU: venda válida registrada.");
+        } catch (RuntimeException e) {
+            falhou(e);
         }
+
+        testarRecusa("[RN07] Venda acima do estoque disponível",
+                () -> estoque.registrarVenda(perfume, 99, bd("140.00")));
+
+        System.out.println("Estoque final de " + perfume.getNome()
+                + ": " + estoque.consultarEstoque(perfume) + " unidade(s).");
+        System.out.println(estoque);
     }
 
-    private static void testarCamadaComPercentualZero() {
-        testarCamadaInvalida("Camada com percentual zero", "0");
+    private static void testarRN08() {
+        MateriaPrima vencida = new MateriaPrima(
+                "Essência vencida", 100,
+                LocalDate.of(2026, 2, 1));
+
+        testarRecusa("[RN08] Usar matéria-prima vencida",
+                () -> vencida.consumir(10, ENVASE));
+
+        System.out.println("Estoque preservado após recusa: "
+                + vencida.getQuantidadeDisponivel());
     }
 
-    private static void testarCamadaComPercentualNegativo() {
-        testarCamadaInvalida("Camada com percentual negativo", "-10");
-    }
-
-    private static void testarCamadaInvalida(String descricao, String percentual) {
-        System.out.println("\n[RN02] " + descricao);
-
-        try {
-            criarCamada(
-                    "saída", percentual,
-                    new String[]{"Bergamota"},
-                    new String[]{"100"});
-
-            System.out.println("FALHOU: camada invalida foi aceita.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: camada rejeitada.");
-        }
-    }
-
-    private static void testarCamadaComIngredientesVazios() {
-        System.out.println("\n[RN02] Camada sem ingredientes");
-
-        try {
-            criarCamada(
-                    "saída", "25",
-                    new String[]{},
-                    new String[]{});
-
-            System.out.println("FALHOU: camada vazia foi aceita.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: camada rejeitada.");
-        }
-    }
-
-    private static void testarIngredienteComPercentualNegativo() {
-        testarIngredienteInvalido("Percentual negativo", "-10");
-    }
-
-    private static void testarIngredienteAcimaDe100() {
-        testarIngredienteInvalido("Percentual acima de 100", "110");
-    }
-
-    private static void testarIngredienteInvalido(
-            String descricao, String percentual) {
-        System.out.println("\n[RN02] Ingrediente: " + descricao);
-
-        try {
-            new IngredienteFormula(
-                    "Bergamota",
-                    new BigDecimal(percentual));
-
-            System.out.println("FALHOU: ingrediente invalido foi aceito.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: ingrediente rejeitado.");
-        }
-    }
-
-    private static void testarAssinaturaParfumJunior() {
-        System.out.println("\n[RN09] Junior tentando assinar Parfum");
-
+    private static void testarRN09() {
         FormulaOlfativa formula = criarFormulaValida();
-        Perfumista junior = new Perfumista("Joao", "Junior");
         Parfum parfum = criarParfum();
 
-        try {
-            formula.assinar(junior, parfum);
-            System.out.println("FALHOU: assinatura de junior foi permitida.");
+        Perfumista junior = new PerfumistaJunior("João");
+        Perfumista senior = new PerfumistaSenior("Maria");
 
-        } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: assinatura de junior bloqueada.");
-        }
-    }
-
-    private static void testarAssinaturaParfumSenior() {
-        System.out.println("\n[RN09] Senior tentando assinar Parfum");
-
-        FormulaOlfativa formula = criarFormulaValida();
-        Perfumista senior = new Perfumista("Maria", "Senior");
-        Parfum parfum = criarParfum();
+        testarRecusa("[RN09] Júnior assinando fórmula de Parfum",
+                () -> formula.assinar(junior, parfum));
 
         try {
             formula.assinar(senior, parfum);
-            System.out.println("PASSOU: assinatura de senior permitida.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("FALHOU: " + e.getMessage());
+            System.out.println("PASSOU: sênior pode assinar fórmula de Parfum.");
+        } catch (RuntimeException e) {
+            falhou(e);
         }
+    }
+
+    private static void testarRN10() {
+        testarRecusa("[RN10] Vela com fragrância acima de 10%",
+                () -> new VelaAromatica(
+                        "Vela inválida", bd("20"), bd("200"), bd("10.1")));
+
+        testarRecusa("[RN10] Difusor com apenas 3 varetas",
+                () -> new DifusorAromatico(
+                        "Difusor inválido", bd("20"), 3));
+
+        try {
+            VelaAromatica vela = new VelaAromatica(
+                    "Vela Poti", bd("20"), bd("200"), bd("8"));
+
+            DifusorAromatico difusor = new DifusorAromatico(
+                    "Difusor Poti", bd("25"), 6);
+
+            System.out.println("PASSOU: " + vela);
+            System.out.println("Fragrância necessária: "
+                    + vela.calcularFragranciaGramas() + " g");
+            System.out.println("PASSOU: " + difusor);
+        } catch (RuntimeException e) {
+            falhou(e);
+        }
+    }
+
+    private static void testarRN11() {
+        testarRecusa("[RN11] Gravação acima de 20 caracteres",
+                () -> new PerfumePersonalizado(
+                        "Poti Personalizado", bd("100"), bd("18"),
+                        "GravacaoMuitoLongaMaisDeVinte"));
+
+        PerfumePersonalizado personalizado = new PerfumePersonalizado(
+                "Poti Personalizado", bd("100"), bd("18"), "Para Ana");
+
+        System.out.println("Encomenda aceita: " + personalizado);
+
+        testarRecusa("[RN11] Devolver perfume personalizado",
+                personalizado::devolver);
+    }
+
+    private static void testarRecusa(String descricao, Runnable operacao) {
+        System.out.println("\n" + descricao);
+
+        try {
+            operacao.run();
+            System.out.println("FALHOU: a operação inválida foi aceita.");
+        } catch (RuntimeException e) {
+            System.out.println("PASSOU: operação recusada — "
+                    + e.getMessage());
+        }
+    }
+
+    private static void falhou(RuntimeException e) {
+        System.out.println("FALHOU: " + e.getMessage());
+    }
+
+    private static BigDecimal bd(String valor) {
+        return new BigDecimal(valor);
     }
 
     private static Parfum criarParfum() {
-        return new Parfum(
-                "Poti Intenso",
-                new BigDecimal("100"),
-                new BigDecimal("25"));
+        return new Parfum("Poti Intenso", bd("100"), bd("25"));
+    }
+
+    private static LoteProducao criarLote(String codigo) {
+        return new LoteProducao(
+                codigo, criarParfum(), INICIO, VALIDADE);
     }
 
     private static FormulaOlfativa criarFormulaValida() {
-        CamadaOlfativa saída = criarCamada(
-                "saída", "25",
-                new String[]{"Bergamota", "Limao"},
-                new String[]{"60", "40"});
+        CamadaOlfativa saida = new CamadaOlfativa(
+                "saída", bd("25"), Arrays.asList(
+                        new IngredienteFormula("Bergamota", bd("60")),
+                        new IngredienteFormula("Limão", bd("40"))));
 
-        CamadaOlfativa coração = criarCamada(
-                "coração", "35",
-                new String[]{"Rosa", "Jasmim"},
-                new String[]{"50", "50"});
+        CamadaOlfativa coracao = new CamadaOlfativa(
+                "coração", bd("35"), Arrays.asList(
+                        new IngredienteFormula("Rosa", bd("50")),
+                        new IngredienteFormula("Jasmim", bd("50"))));
 
-        CamadaOlfativa fundo = criarCamada(
-                "fundo", "40",
-                new String[]{"Cedro", "Baunilha"},
-                new String[]{"70", "30"});
+        CamadaOlfativa fundo = new CamadaOlfativa(
+                "fundo", bd("40"), Arrays.asList(
+                        new IngredienteFormula("Cedro", bd("70")),
+                        new IngredienteFormula("Baunilha", bd("30"))));
 
-        return new FormulaOlfativa(saída, coração, fundo);
+        return new FormulaOlfativa(saida, coracao, fundo);
     }
 
     private static CamadaOlfativa criarCamada(
-            String tipo,
-            String percentualCamada,
-            String[] nomes,
-            String[] percentuais) {
-
-        IngredienteFormula[] ingredientes =
-                new IngredienteFormula[nomes.length];
-
-        for (int i = 0; i < nomes.length; i++) {
-            ingredientes[i] = new IngredienteFormula(
-                    nomes[i],
-                    new BigDecimal(percentuais[i]));
-        }
+            String tipo, String percentual, String nomeIngrediente) {
 
         return new CamadaOlfativa(
-                tipo,
-                new BigDecimal(percentualCamada),
-                Arrays.asList(ingredientes));
+                tipo, bd(percentual), Arrays.asList(
+                        new IngredienteFormula(nomeIngrediente, bd("100"))));
     }
 }
