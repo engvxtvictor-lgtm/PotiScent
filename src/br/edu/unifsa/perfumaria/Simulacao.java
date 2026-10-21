@@ -4,15 +4,16 @@ package br.edu.unifsa.perfumaria;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
+import br.edu.unifsa.perfumaria.pessoas.Perfumista;
 import br.edu.unifsa.perfumaria.produtos.CamadaOlfativa;
 import br.edu.unifsa.perfumaria.produtos.FormulaOlfativa;
 import br.edu.unifsa.perfumaria.produtos.IngredienteFormula;
+import br.edu.unifsa.perfumaria.produtos.Parfum;
 
 public class Simulacao {
 
     public static void main(String[] args) {
-        System.out.println("=== Essência do Poti ===");
-        System.out.println("Testes da RN02 - Fórmula olfativa");
+        System.out.println("=== Essencia do Poti ===");
 
         testarFormulaValida();
         testarSomaInvalidaDasCamadas();
@@ -22,48 +23,32 @@ public class Simulacao {
         testarCamadaComIngredientesVazios();
         testarIngredienteComPercentualNegativo();
         testarIngredienteAcimaDe100();
+
+        testarAssinaturaParfumJunior();
+        testarAssinaturaParfumSenior();
     }
 
     private static void testarFormulaValida() {
-        System.out.println("\nTeste 1: fórmula válida");
+        System.out.println("\n[RN02] Formula valida");
 
         try {
-            CamadaOlfativa saida = criarCamada(
-                    "saída", "25",
-                    new String[]{"Bergamota", "Limão"},
-                    new String[]{"60", "40"});
-
-            CamadaOlfativa coracao = criarCamada(
-                    "coração", "35",
-                    new String[]{"Rosa", "Jasmim"},
-                    new String[]{"50", "50"});
-
-            CamadaOlfativa fundo = criarCamada(
-                    "fundo", "40",
-                    new String[]{"Cedro", "Baunilha"},
-                    new String[]{"70", "30"});
-
-            FormulaOlfativa formula =
-                    new FormulaOlfativa(saida, coracao, fundo);
-
-            System.out.println("PASSOU: fórmula aceita.");
-            System.out.println(formula);
-
+            FormulaOlfativa formula = criarFormulaValida();
+            System.out.println("PASSOU: " + formula);
         } catch (IllegalArgumentException e) {
             System.out.println("FALHOU: " + e.getMessage());
         }
     }
 
     private static void testarSomaInvalidaDasCamadas() {
-        System.out.println("\nTeste 2: camadas somam 90%");
+        System.out.println("\n[RN02] Camadas somam 90%");
 
         try {
-            CamadaOlfativa saida = criarCamada(
+            CamadaOlfativa saída = criarCamada(
                     "saída", "20",
                     new String[]{"Bergamota"},
                     new String[]{"100"});
 
-            CamadaOlfativa coracao = criarCamada(
+            CamadaOlfativa coração = criarCamada(
                     "coração", "30",
                     new String[]{"Rosa"},
                     new String[]{"100"});
@@ -73,31 +58,150 @@ public class Simulacao {
                     new String[]{"Cedro"},
                     new String[]{"100"});
 
-            new FormulaOlfativa(saida, coracao, fundo);
-
-            System.out.println("FALHOU: fórmula inválida foi aceita.");
+            new FormulaOlfativa(saída, coração, fundo);
+            System.out.println("FALHOU: formula invalida foi aceita.");
 
         } catch (IllegalArgumentException e) {
-            System.out.println("PASSOU: fórmula rejeitada.");
-            System.out.println("Motivo: " + e.getMessage());
+            System.out.println("PASSOU: formula rejeitada.");
         }
     }
 
     private static void testarSomaInvalidaDosIngredientes() {
-        System.out.println("\nTeste 3: ingredientes somam 90%");
+        System.out.println("\n[RN02] Ingredientes somam 90%");
 
         try {
             criarCamada(
                     "saída", "25",
-                    new String[]{"Bergamota", "Limão"},
+                    new String[]{"Bergamota", "Limao"},
                     new String[]{"50", "40"});
 
-            System.out.println("FALHOU: camada inválida foi aceita.");
+            System.out.println("FALHOU: camada invalida foi aceita.");
 
         } catch (IllegalArgumentException e) {
             System.out.println("PASSOU: camada rejeitada.");
-            System.out.println("Motivo: " + e.getMessage());
         }
+    }
+
+    private static void testarCamadaComPercentualZero() {
+        testarCamadaInvalida("Camada com percentual zero", "0");
+    }
+
+    private static void testarCamadaComPercentualNegativo() {
+        testarCamadaInvalida("Camada com percentual negativo", "-10");
+    }
+
+    private static void testarCamadaInvalida(String descricao, String percentual) {
+        System.out.println("\n[RN02] " + descricao);
+
+        try {
+            criarCamada(
+                    "saída", percentual,
+                    new String[]{"Bergamota"},
+                    new String[]{"100"});
+
+            System.out.println("FALHOU: camada invalida foi aceita.");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("PASSOU: camada rejeitada.");
+        }
+    }
+
+    private static void testarCamadaComIngredientesVazios() {
+        System.out.println("\n[RN02] Camada sem ingredientes");
+
+        try {
+            criarCamada(
+                    "saída", "25",
+                    new String[]{},
+                    new String[]{});
+
+            System.out.println("FALHOU: camada vazia foi aceita.");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("PASSOU: camada rejeitada.");
+        }
+    }
+
+    private static void testarIngredienteComPercentualNegativo() {
+        testarIngredienteInvalido("Percentual negativo", "-10");
+    }
+
+    private static void testarIngredienteAcimaDe100() {
+        testarIngredienteInvalido("Percentual acima de 100", "110");
+    }
+
+    private static void testarIngredienteInvalido(
+            String descricao, String percentual) {
+        System.out.println("\n[RN02] Ingrediente: " + descricao);
+
+        try {
+            new IngredienteFormula(
+                    "Bergamota",
+                    new BigDecimal(percentual));
+
+            System.out.println("FALHOU: ingrediente invalido foi aceito.");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("PASSOU: ingrediente rejeitado.");
+        }
+    }
+
+    private static void testarAssinaturaParfumJunior() {
+        System.out.println("\n[RN09] Junior tentando assinar Parfum");
+
+        FormulaOlfativa formula = criarFormulaValida();
+        Perfumista junior = new Perfumista("Joao", "Junior");
+        Parfum parfum = criarParfum();
+
+        try {
+            formula.assinar(junior, parfum);
+            System.out.println("FALHOU: assinatura de junior foi permitida.");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("PASSOU: assinatura de junior bloqueada.");
+        }
+    }
+
+    private static void testarAssinaturaParfumSenior() {
+        System.out.println("\n[RN09] Senior tentando assinar Parfum");
+
+        FormulaOlfativa formula = criarFormulaValida();
+        Perfumista senior = new Perfumista("Maria", "Senior");
+        Parfum parfum = criarParfum();
+
+        try {
+            formula.assinar(senior, parfum);
+            System.out.println("PASSOU: assinatura de senior permitida.");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("FALHOU: " + e.getMessage());
+        }
+    }
+
+    private static Parfum criarParfum() {
+        return new Parfum(
+                "Poti Intenso",
+                new BigDecimal("100"),
+                new BigDecimal("25"));
+    }
+
+    private static FormulaOlfativa criarFormulaValida() {
+        CamadaOlfativa saída = criarCamada(
+                "saída", "25",
+                new String[]{"Bergamota", "Limao"},
+                new String[]{"60", "40"});
+
+        CamadaOlfativa coração = criarCamada(
+                "coração", "35",
+                new String[]{"Rosa", "Jasmim"},
+                new String[]{"50", "50"});
+
+        CamadaOlfativa fundo = criarCamada(
+                "fundo", "40",
+                new String[]{"Cedro", "Baunilha"},
+                new String[]{"70", "30"});
+
+        return new FormulaOlfativa(saída, coração, fundo);
     }
 
     private static CamadaOlfativa criarCamada(
@@ -120,82 +224,4 @@ public class Simulacao {
                 new BigDecimal(percentualCamada),
                 Arrays.asList(ingredientes));
     }
-    
-private static void testarCamadaComPercentualZero() {
-    System.out.println("\n[RN02] Camada com percentual zero");
-
-    try {
-        criarCamada(
-                "saída", "0",
-                new String[]{"Bergamota"},
-                new String[]{"100"});
-
-        System.out.println("ERRO: camada com 0% foi aceita.");
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("RECUSADO: " + e.getMessage());
-    }
-}
-
-private static void testarCamadaComPercentualNegativo() {
-    System.out.println("\n[RN02] Camada com percentual negativo");
-
-    try {
-        criarCamada(
-                "saída", "-10",
-                new String[]{"Bergamota"},
-                new String[]{"100"});
-
-        System.out.println("ERRO: camada com percentual negativo foi aceita.");
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("RECUSADO: " + e.getMessage());
-    }
-}
-
-private static void testarCamadaComIngredientesVazios() {
-    System.out.println("\n[RN02] Camada sem ingredientes");
-
-    try {
-        criarCamada(
-                "saída", "25",
-                new String[]{},
-                new String[]{});
-
-        System.out.println("ERRO: camada sem ingredientes foi aceita.");
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("RECUSADO: " + e.getMessage());
-    }
-}
-
-private static void testarIngredienteComPercentualNegativo() {
-    System.out.println("\n[RN02] Ingrediente com percentual negativo");
-
-    try {
-        new IngredienteFormula(
-                "Bergamota",
-                new BigDecimal("-10"));
-
-        System.out.println("ERRO: ingrediente com percentual negativo foi aceito.");
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("RECUSADO: " + e.getMessage());
-    }
-}
-    private static void testarIngredienteAcimaDe100() {
-    System.out.println("\n[RN02] Ingrediente acima de 100%");
-
-    try {
-        new IngredienteFormula(
-                "Bergamota",
-                new BigDecimal("110"));
-
-        System.out.println("ERRO: ingrediente acima de 100% foi aceito.");
-
-    } catch (IllegalArgumentException e) {
-        System.out.println("RECUSADO: " + e.getMessage());
-    }
-}
-
 }

@@ -2,6 +2,7 @@
 package br.edu.unifsa.perfumaria.produtos;
 
 import java.math.BigDecimal;
+import br.edu.unifsa.perfumaria.pessoas.Perfumista;
 
 public class FormulaOlfativa {
 
@@ -35,6 +36,18 @@ public class FormulaOlfativa {
         this.saida = saida;
         this.coracao = coracao;
         this.fundo = fundo;
+    }
+
+    public void assinar(Perfumista perfumista, Produto produto) {
+        if (perfumista == null || produto == null) {
+            throw new IllegalArgumentException(
+                    "Perfumista e produto são obrigatórios.");
+        }
+
+        if (produto instanceof Parfum && !perfumista.podeAssinarParfum()) {
+            throw new IllegalArgumentException(
+                    "Perfumista júnior não pode assinar fórmula de Parfum.");
+        }
     }
 
     private void validarTipo(CamadaOlfativa camada, String tipoEsperado) {
