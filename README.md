@@ -7,13 +7,14 @@ Sistema acadêmico desenvolvido em Java para representar uma perfumaria artesana
 - Java
 - Programação Orientada a Objetos (POO)
 - Git e GitHub
+- Draw.io para o diagrama UML
 
 ## Integrantes
 
-| Integrante | Responsabilidade |
-|---|---|
-| Vítor Rufino (`@dev.vxt`) | Produtos e fórmulas olfativas |
-| Antônio Vitor Matos Cruz (`@antoniovitordematos`) | Produção, matérias-primas, lotes e estoque |
+| Integrante | Usuário do GitHub | Módulo |
+|---|---|---|
+| Vítor Rufino | `@dev.vxt` | Produtos e fórmulas olfativas |
+| Antônio Vitor Matos Cruz | `@antoniovitordematos` | Produção, matérias-primas, lotes e estoque |
 
 ## Organização do projeto
 
@@ -23,19 +24,21 @@ Sistema acadêmico desenvolvido em Java para representar uma perfumaria artesana
 - `Simulacao.java`: demonstração das regras de negócio e dos conceitos de POO.
 - `docs`: documentação e diagrama de classes UML.
 
-## Conceitos de POO
+## Conceitos de POO e decisões de modelagem
 
-- **Encapsulamento:** proteção dos atributos e controle de acesso aos dados.
-- **Herança:** reutilização e especialização de classes.
-- **Polimorfismo:** utilização de objetos de diferentes especializações por meio de tipos comuns.
-- **Abstração:** representação de conceitos gerais por classes abstratas.
-- **Interfaces:** definição de contratos para classes.
-- **Sobrescrita:** redefinição de métodos herdados utilizando `@Override`.
-- **Construtores:** inicialização dos objetos e validação dos dados.
+- **Encapsulamento:** atributos privados protegem os dados e permitem controlar as alterações por meio de validações.
+- **Herança:** permite representar especializações de produtos e funcionários, reduzindo a repetição de código.
+- **Polimorfismo:** permite trabalhar com objetos de diferentes classes por meio de tipos comuns, respeitando seus comportamentos específicos.
+- **Abstração:** classes abstratas representam conceitos gerais que não devem ser instanciados diretamente.
+- **Interfaces:** definem contratos que podem ser implementados por classes diferentes.
+- **Sobrescrita:** permite redefinir métodos herdados utilizando `@Override`.
+- **Construtores:** inicializam objetos e validam dados. A sobrecarga permite diferentes formas de criação, enquanto `this(...)` e `super(...)` reaproveitam inicializações.
+- **Controle de acesso:** os modificadores de acesso restringem a utilização dos atributos e métodos conforme a necessidade. O uso de `protected` deve ser justificado quando houver necessidade de acesso pelas subclasses.
+- **Imutabilidade:** campos que não podem ser alterados após a criação, como o código do lote e o volume do frasco, não devem possuir métodos de alteração.
 
 ## Regras de negócio
 
-A simulação demonstra as regras RN01 a RN11, abrangendo concentração dos perfumes, composição das fórmulas olfativas, volumes dos frascos, tempo de maceração, identificação dos lotes, preço mínimo de venda, controle de estoque, validade das matérias-primas, assinatura de fórmulas, produtos aromáticos e encomendas personalizadas.
+A simulação contempla as regras RN01 a RN11, envolvendo concentração dos perfumes, composição das fórmulas olfativas, volumes dos frascos, tempo de maceração, identificação dos lotes, preço mínimo de venda, controle de estoque, validade das matérias-primas, assinatura de fórmulas, produtos aromáticos e encomendas personalizadas.
 
 ## Como executar
 
@@ -54,4 +57,4 @@ java -cp .\build br.edu.unifsa.perfumaria.Simulacao
 ## Documentação adicional
 
 - `docs/DECISOES_MODELAGEM.md`: decisões e justificativas de modelagem.
-- `docs/diagrama-de-classes..drawio`: diagrama de classes UML editável no Draw.io.
+- `docs/diagrama-de-classes.drawio`: diagrama de classes UML editável no Draw.io.
