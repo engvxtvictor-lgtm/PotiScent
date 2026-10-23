@@ -5,14 +5,17 @@ import br.edu.unifsa.perfumaria.produtos.Produto;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EstoquePerfumes {
 
     private final Map<Produto, Integer> estoque = new LinkedHashMap<>();
     private final List<Venda> vendas = new ArrayList<>();
+    private final Set<String> lotesRegistrados = new HashSet<>();
 
     public void registrarEnvase(Produto produto, LoteProducao lote) {
         if (produto == null || lote == null) {
@@ -30,8 +33,15 @@ public class EstoquePerfumes {
                     "O produto informado não corresponde ao produto do lote.");
         }
 
+        if (lotesRegistrados.contains(lote.getCodigo())) {
+            throw new IllegalStateException(
+                    "Este lote já foi registrado no estoque.");
+        }
+
         int unidades = lote.getUnidadesEnvasadas();
+
         estoque.merge(produto, unidades, Integer::sum);
+        lotesRegistrados.add(lote.getCodigo());
     }
 
     public int consultarEstoque(Produto produto) {
@@ -74,8 +84,8 @@ public class EstoquePerfumes {
         BigDecimal total = precoUnitario.multiply(
                 BigDecimal.valueOf(quantidade));
 
-        Venda venda = new Venda(produto.getNome(), quantidade,
-                precoUnitario, total);
+        Venda venda = new Venda(
+                produto.getNome(), quantidade, precoUnitario, total);
 
         estoque.put(produto, disponivel - quantidade);
         vendas.add(venda);
