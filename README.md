@@ -1,110 +1,57 @@
-\# Essência do Poti
-
-
+# Essência do Poti
 
 Sistema acadêmico desenvolvido em Java para representar uma perfumaria artesanal, incluindo perfumes, fórmulas olfativas, matérias-primas, produção, maceração, envase, estoque, vendas e encomendas personalizadas.
 
+## Tecnologias
 
+- Java
+- Programação Orientada a Objetos (POO)
+- Git e GitHub
 
-\## Tecnologias
-
-
-
-\- Java
-
-\- Programação Orientada a Objetos (POO)
-
-\- Git e GitHub
-
-
-
-\## Integrantes
-
-
+## Integrantes
 
 | Integrante | Responsabilidade |
-
 |---|---|
+| Vítor Rufino (`@dev.vxt`) | Produtos e fórmulas olfativas |
+| Antônio Vitor Matos Cruz (`@antoniovitordematos`) | Produção, matérias-primas, lotes e estoque |
 
-| Victor Rufino (`@dev.vxt`) | Produtos e fórmulas olfativas |
+## Organização do projeto
 
-| Antônio Vitor | Produção, matérias-primas, lotes e estoque |
+- `produtos`: produtos, perfumes, fórmulas, camadas olfativas e interfaces.
+- `producao`: matérias-primas, lotes, frascos, produção e estoque.
+- `pessoas`: funcionários e especializações de perfumistas.
+- `Simulacao.java`: demonstração das regras de negócio e dos conceitos de POO.
+- `docs`: documentação e diagrama de classes UML.
 
+## Conceitos de POO
 
+- **Encapsulamento:** proteção dos atributos e controle de acesso aos dados.
+- **Herança:** reutilização e especialização de classes.
+- **Polimorfismo:** utilização de objetos de diferentes especializações por meio de tipos comuns.
+- **Abstração:** representação de conceitos gerais por classes abstratas.
+- **Interfaces:** definição de contratos para classes.
+- **Sobrescrita:** redefinição de métodos herdados utilizando `@Override`.
+- **Construtores:** inicialização dos objetos e validação dos dados.
 
-\## Organização do projeto
+## Regras de negócio
 
+A simulação demonstra as regras RN01 a RN11, abrangendo concentração dos perfumes, composição das fórmulas olfativas, volumes dos frascos, tempo de maceração, identificação dos lotes, preço mínimo de venda, controle de estoque, validade das matérias-primas, assinatura de fórmulas, produtos aromáticos e encomendas personalizadas.
 
+## Como executar
 
-\- `produtos`: produtos, perfumes, fórmulas, camadas olfativas e interfaces.
+É necessário ter o JDK instalado e configurado no `PATH`.
 
-\- `producao`: matérias-primas, lotes, frascos, produção e estoque.
-
-\- `pessoas`: funcionários e especializações de perfumistas.
-
-\- `Simulacao`: testes das regras de negócio.
-
-\- `docs`: decisões de modelagem e diagramas.
-
-
-
-\## Conceitos de POO
-
-
-
-\- Abstração e classes abstratas.
-
-\- Encapsulamento.
-
-\- Herança.
-
-\- Polimorfismo.
-
-\- Interfaces.
-
-\- Sobrescrita de métodos com `@Override`.
-
-
-
-\## Regras de negócio
-
-
-
-A simulação verifica as regras RN01 a RN11, incluindo concentração dos perfumes, composição olfativa, frascos, maceração, lotes, preço mínimo, estoque, validade das matérias-primas, assinatura de fórmulas, produtos aromáticos e encomendas personalizadas.
-
-
-
-\## Como executar
-
-
-
-É necessário ter um JDK instalado e disponível no `PATH`.
-
-
-
-Execute na raiz do projeto, pelo PowerShell:
-
-
+Na raiz do projeto, execute os comandos no PowerShell:
 
 ```powershell
+New-Item -ItemType Directory -Force .\build | Out-Null
 
-New-Item -ItemType Directory -Force out
+javac -encoding UTF-8 -d .\build (Get-ChildItem .\src -Recurse -Filter *.java | ForEach-Object { $_.FullName })
 
-javac -encoding UTF-8 -d out (Get-ChildItem -Recurse src -Filter \*.java | ForEach-Object { $\_.FullName })
-
-java -cp out br.edu.unifsa.perfumaria.Simulacao
-
+java -cp .\build br.edu.unifsa.perfumaria.Simulacao
 ```
 
+## Documentação adicional
 
-
-\## Documentação adicional
-
-
-
-\- `docs/DECISOES\_MODELAGEM.md`: decisões de modelagem.
-
-\- `docs/diagramas/`: diagramas do sistema.
-
-
-
+- `docs/DECISOES_MODELAGEM.md`: decisões e justificativas de modelagem.
+- `docs/diagrama-de-classes..drawio`: diagrama de classes UML editável no Draw.io.
